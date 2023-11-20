@@ -1,0 +1,51 @@
+.main {
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+.device {
+  background-color: #878787;
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 1rem;
+  border-radius: 10px;
+}
+
+.flex {
+  display: flex;
+  justify-content: space-between;
+}
+
+.pad {
+  width: 40%;
+}
+
+.title {
+  display: flex;
+  align-content: center;
+  justify-content: space-between;
+  padding-right: 0.5rem;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.button {
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 1rem;
+  background-color: #ccc;
+  border-radius: 10px;
+}
+
+.options {
+  width: calc(60% - 1rem);
+}
+
+.waveform {
+  background-color: #282828;
+  height: 70%;
+  border-radius: 6px;
+}
