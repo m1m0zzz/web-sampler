@@ -11,6 +11,8 @@ export default function Home() {
   const [lastClicked, setLastClicked] = useState(PAD_NUM / 4 * 3);
   const [audioFiles, setAudioFiles] = useState<File[]>([]);
   const [audioBuffers, setAudioBuffers] = useState<AudioBuffer[]>([]);
+  const [gain, setGain] = useState(100); // 0 - 100
+  const [gainNode, setGainNode] = useState<GainNode | null>(null);
 
   const handleFile = async (files: FileList | null, index: number) => {
     if (files && files[0]) {
@@ -23,11 +25,13 @@ export default function Home() {
       if (!audioContext) {
         _audioContext = new AudioContext();
         setAudioContext(_audioContext);
+        const _gainNode = _audioContext.createGain();
+        _gainNode.connect(_audioContext.destination);
+        setGainNode(_gainNode);
       } else {
         _audioContext = audioContext;
       }
       const audioBuf = await loadSample(_audioContext, URL.createObjectURL(files[0]));
-      console.log(audioBuf);
       const newAudioBuffers = audioBuffers;
       newAudioBuffers[index] = audioBuf;
       setAudioBuffers([...newAudioBuffers]);
@@ -39,7 +43,7 @@ export default function Home() {
   const play = (audioContext: AudioContext, index: number) => {
     if (audioBuffers[index]) {
       const src = new AudioBufferSourceNode(audioContext, { buffer: audioBuffers[index] });
-      src.connect(audioContext.destination);
+      src.connect(gainNode || audioContext.destination);
       src.start();
     }
   }
@@ -60,7 +64,6 @@ export default function Home() {
   const filterData = (audioBuffer: AudioBuffer, samples: number) => {
     const rawData = audioBuffer.getChannelData(0); // We only need to work with one channel of data
     const _samples = Math.min(rawData.length, samples); // Number of samples we want to have in our final data set
-    console.log("data length", rawData.length);
     const blockSize = Math.floor(rawData.length / _samples); // Number of samples in each subdivision
     const filteredData = [];
     for (let i = 0; i < _samples; i++) {
@@ -79,7 +82,6 @@ export default function Home() {
     const canvas = canvasRef.current as unknown as HTMLCanvasElement;
     const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     const dpr = window.devicePixelRatio || 1;
-    console.log(canvas.offsetWidth, canvas.offsetHeight);
     canvas.width = canvas.offsetWidth * dpr;
     canvas.height = canvas.offsetHeight * dpr;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -98,7 +100,6 @@ export default function Home() {
       ctx.strokeStyle = "#FFB532"; // what color our line is
       ctx.beginPath();
       const y = ((i + 1) % 2) ? height : -height;
-      console.log(x, y);
       ctx.moveTo(x, 0);
       ctx.lineTo(x, Math.round(y));
       ctx.stroke();
@@ -107,8 +108,24 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      <h1>web-sampler</h1>
-      <div><i>a simple 16 pad sampler</i></div>
+      <div className={styles.header}>
+        <div>
+          <h1>web-sampler</h1>
+          <div><i>a simple 16 pad sampler</i></div>
+        </div>
+        <div className={styles.master}>
+          <label>Master</label>
+          <input className={styles.volumeInput}
+            type="range" defaultValue={gain} min={0} max={150}
+            onChange={e => {
+              const g = Number(e.target.value);
+              setGain(g);
+              if (gainNode) gainNode.gain.value = g / 100;
+            }}
+          />
+          <label>{gain} %</label>
+        </div>
+      </div>
 
       <div className={styles.device}>
         <div className={styles.flex}>

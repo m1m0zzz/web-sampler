@@ -3,6 +3,23 @@
   min-height: 100vh;
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.master {
+  display: flex;
+  width: 240px;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+.volumeInput {
+  height: min-content;
+}
+
 .device {
   background-color: #878787;
   width: 100%;
